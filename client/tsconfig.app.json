@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": false,  // Ändra från true till false
+    "noUnusedParameters": false,  // Ändra från true till false
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true  // Viktigt att ha denna som true
+  },
+  "include": ["src", "src/global.d.ts"]
+}
