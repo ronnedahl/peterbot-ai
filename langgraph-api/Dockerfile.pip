@@ -1,0 +1,36 @@
+# Alternative Backend Dockerfile using pip instead of uv
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files
+COPY requirements.txt .
+
+# Create virtual environment and install dependencies
+RUN python -m venv .venv && \
+    . .venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY scripts/ ./scripts/
+
+# Copy environment file (will be overridden by docker-compose)
+COPY .env.example .env
+
+# Expose port
+EXPOSE 8000
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Run the application
+CMD [".venv/bin/python", "scripts/dev.py"]

@@ -1,0 +1,8 @@
+# Docker compose using pip instead of uv
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./langgraph-api
+      dockerfile: Dockerfile.pip

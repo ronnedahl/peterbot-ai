@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Backend - LangGraph API
+  backend:
+    build: 
+      context: ./langgraph-api
+      dockerfile: Dockerfile
+    container_name: peterbot-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_ENV=development
+      - LOG_LEVEL=INFO
+    env_file:
+      - ./langgraph-api/.env
+    volumes:
+      # Mount source code for hot reload
+      - ./langgraph-api/src:/app/src
+      - ./langgraph-api/scripts:/app/scripts
+      # Persist virtual environment
+      - backend-venv:/app/.venv
+    networks:
+      - peterbot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend - React + Vite
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: peterbot-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    env_file:
+      - ./client/.env
+    volumes:
+      # Mount source code for hot reload
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+      - ./client/index.html:/app/index.html
+      - ./client/vite.config.ts:/app/vite.config.ts
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    networks:
+      - peterbot-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  peterbot-network:
+    driver: bridge
+
+volumes:
+  backend-venv:
